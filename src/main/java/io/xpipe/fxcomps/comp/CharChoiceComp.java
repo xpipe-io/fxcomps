@@ -1,0 +1,52 @@
+package io.xpipe.fxcomps.comp;
+
+import io.xpipe.fxcomps.store.DefaultValueStoreComp;
+import io.xpipe.fxcomps.util.StrongBindings;
+import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
+
+import java.util.function.Supplier;
+
+public class CharChoiceComp extends DefaultValueStoreComp<Character> {
+
+    private final BidiMap<Character, Supplier<String>> range;
+    private final Supplier<String> customName;
+
+    public CharChoiceComp(Character defaultVal, BidiMap<Character, Supplier<String>> range, Supplier<String> customName) {
+        super(defaultVal);
+        this.range = range;
+        this.customName = customName;
+    }
+
+    @Override
+    public Region createBase() {
+        var charChoice = new CharComp();
+        StrongBindings.bind(charChoice.valueProperty(), valueProperty());
+
+        var rangeCopy = new DualLinkedHashBidiMap<>(range);
+        rangeCopy.put(null, customName);
+        var choice = new ChoiceComp<Character>(value.getValue(), rangeCopy);
+        choice.set(getValue());
+        choice.valueProperty().addListener((c, o, n) -> {
+            set(n);
+        });
+        valueProperty().addListener((c, o, n) -> {
+            if (n != null && !range.containsKey(n)) {
+                choice.set(null);
+            } else {
+                choice.set(n);
+            }
+        });
+
+        var charChoiceR = charChoice.createBase();
+        var choiceR = choice.createBase();
+        var box = new HBox(charChoiceR, choiceR);
+        box.setAlignment(Pos.CENTER);
+        choiceR.prefWidthProperty().bind(box.widthProperty().subtract(charChoiceR.widthProperty()));
+        box.getStyleClass().add("char-choice-comp");
+        return box;
+    }
+}
