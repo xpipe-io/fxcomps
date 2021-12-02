@@ -54,7 +54,7 @@ public class SvgComp extends ValueStoreComp<String> {
 
         var sp = new StackPane(wv);
         sp.setAlignment(Pos.CENTER);
-        var r = new AspectComp(new WrapperComp(sp), ar).createBase();
+        var r = new AspectComp(WrapperComp.of(sp), ar).createBase();
         r.getStyleClass().add("svg-comp");
         return r;
     }

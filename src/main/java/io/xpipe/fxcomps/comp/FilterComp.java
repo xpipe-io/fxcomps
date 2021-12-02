@@ -26,7 +26,7 @@ public class FilterComp extends DefaultValueStoreComp<String> {
         bgLabel.visibleProperty().bind(Bindings.createBooleanBinding(() -> filter.getText().isEmpty() && !filter.isFocused(),
                 filter.textProperty(), filter.focusedProperty()));
 
-        var r = new LayerComp(List.of(new WrapperComp(bgLabel), new WrapperComp(filter))).createBase();
+        var r = new LayerComp(List.of(WrapperComp.of(bgLabel), WrapperComp.of(filter))).createBase();
         r.getStyleClass().add("filter-comp");
         return r;
     }
