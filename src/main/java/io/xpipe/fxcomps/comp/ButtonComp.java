@@ -42,6 +42,7 @@ public class ButtonComp extends Comp {
         var button = new JFXButton(getName().get());
         button.setGraphic(getGraphic());
         button.setOnAction(e -> getListener().run());
+        button.getStyleClass().add("button-comp");
         return button;
     }
 }

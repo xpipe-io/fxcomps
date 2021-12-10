@@ -1,13 +1,10 @@
 package io.xpipe.fxcomps.comp;
 
-import com.jfoenix.controls.JFXButton;
 import io.xpipe.fxcomps.Comp;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +24,26 @@ public final class SectionComp extends Comp {
         this.entries = new ArrayList<>();
     }
 
+    public SectionComp(List<Entry> entries) {
+        this.name = () -> null;
+        this.entries = entries;
+    }
+
+    public SectionComp(Supplier<String> name, List<Entry> entries) {
+        this.name = name;
+        this.entries = entries;
+    }
+
     @Override
     public Region createBase() {
         var comp = this;
         GridPane grid = new GridPane();
 
-        var t = new Text(comp.getName());
-        t.setStyle("-fx-font-weight: bold");
-        TextFlow name = new TextFlow(t);
-        grid.add(name, 0, 0, 3, 1);
+        if (comp.getName() != null) {
+            var t = new Label(comp.getName());
+            t.getStyleClass().add("header");
+            grid.add(t, 0, 0, 2, 1);
+        }
 
         int row = 1;
         for (var entry : comp.getEntries()) {
@@ -43,29 +51,19 @@ public final class SectionComp extends Comp {
             Region val = entry.comp().create();
             grid.add(val, 1, row);
             GridPane.setHgrow(val, Priority.ALWAYS);
-
-            if (entry.help() != null) {
-                var help = new JFXButton("?");
-                help.setOnAction(e -> entry.help().run());
-                help.getStyleClass().add("help");
-                help.prefHeightProperty().bind(val.heightProperty());
-                grid.add(help, 2, row);
-            }
-
             row++;
         }
 
-        grid.setHgap(10);
-        grid.setVgap(10);
+        grid.getStyleClass().add("section-comp");
         return grid;
     }
 
     public void add(Supplier<String> name, Comp comp) {
-        entries.add(new Entry(name, comp, null));
+        entries.add(new Entry(name, comp));
     }
 
     public void add(Supplier<String> name, Comp comp, Runnable help) {
-        entries.add(new Entry(name, comp, help));
+        entries.add(new Entry(name, comp));
     }
 
     public List<Entry> getEntries() {
@@ -76,10 +74,10 @@ public final class SectionComp extends Comp {
         return name.get();
     }
 
-    public static record Entry(Supplier<String> name, Comp comp, Runnable help) {
+    public static record Entry(Supplier<String> name, Comp comp) {
 
-        public Entry(Supplier<String> name, Comp comp) {
-            this(name, comp, null);
+        public Entry(String name, Comp comp) {
+            this(() -> name, comp);
         }
     }
 }

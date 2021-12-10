@@ -1,6 +1,7 @@
 package io.xpipe.fxcomps;
 
 import io.xpipe.fxcomps.augment.Augment;
+import io.xpipe.fxcomps.augment.StyleAugment;
 import javafx.scene.layout.Region;
 
 import java.util.ArrayList;
@@ -16,6 +17,10 @@ public abstract class Comp {
         }
         augments.add(a);
         return this;
+    }
+
+    public Comp styleClass(String styleClass) {
+        return augment(StyleAugment.styleClass(styleClass));
     }
 
     public Region create() {
