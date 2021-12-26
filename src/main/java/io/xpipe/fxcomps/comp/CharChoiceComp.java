@@ -1,16 +1,16 @@
 package io.xpipe.fxcomps.comp;
 
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.DefaultValueStoreComp;
 import io.xpipe.fxcomps.util.StrongBindings;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
 
 import java.util.function.Supplier;
 
-public class CharChoiceComp extends DefaultValueStoreComp<Character> {
+public class CharChoiceComp extends DefaultValueStoreComp<CompStructure<HBox>, Character> {
 
     private final BidiMap<Character, Supplier<String>> range;
     private final Supplier<String> customName;
@@ -22,7 +22,7 @@ public class CharChoiceComp extends DefaultValueStoreComp<Character> {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<HBox> createBase() {
         var charChoice = new CharComp();
         StrongBindings.bind(charChoice.valueProperty(), valueProperty());
 
@@ -41,12 +41,12 @@ public class CharChoiceComp extends DefaultValueStoreComp<Character> {
             }
         });
 
-        var charChoiceR = charChoice.createBase();
-        var choiceR = choice.createBase();
+        var charChoiceR = charChoice.createRegion();
+        var choiceR = choice.createRegion();
         var box = new HBox(charChoiceR, choiceR);
         box.setAlignment(Pos.CENTER);
         choiceR.prefWidthProperty().bind(box.widthProperty().subtract(charChoiceR.widthProperty()));
         box.getStyleClass().add("char-choice-comp");
-        return box;
+        return new CompStructure<>(box);
     }
 }

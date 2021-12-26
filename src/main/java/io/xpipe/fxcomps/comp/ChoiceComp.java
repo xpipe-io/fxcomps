@@ -1,15 +1,15 @@
 package io.xpipe.fxcomps.comp;
 
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.DefaultValueStoreComp;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.layout.Region;
 import javafx.util.StringConverter;
 import org.apache.commons.collections4.BidiMap;
 
 import java.util.function.Supplier;
 
-public class ChoiceComp<T> extends DefaultValueStoreComp<T> {
+public class ChoiceComp<T> extends DefaultValueStoreComp<CompStructure<ChoiceBox<T>>, T> {
 
     private final BidiMap<T, Supplier<String>> range;
 
@@ -28,7 +28,7 @@ public class ChoiceComp<T> extends DefaultValueStoreComp<T> {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<ChoiceBox<T>> createBase() {
         var comp = this;
         var list = FXCollections.observableArrayList(comp.getRange().keySet());
         var cb = new ChoiceBox<>(list);
@@ -45,6 +45,6 @@ public class ChoiceComp<T> extends DefaultValueStoreComp<T> {
         });
         cb.valueProperty().bindBidirectional(comp.valueProperty());
         cb.getStyleClass().add("choice-comp");
-        return cb;
+        return new CompStructure<>(cb);
     }
 }

@@ -1,20 +1,20 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
-import javafx.scene.layout.Region;
+import io.xpipe.fxcomps.CompStructure;
 
-public abstract class ReplacementComp extends Comp {
+public abstract class ReplacementComp<S extends CompStructure<?>> extends Comp<S> {
 
-    private Comp comp;
+    private Comp<S> comp;
 
-    protected abstract Comp createComp();
+    protected abstract Comp<S> createComp();
 
     @Override
-    protected Region createBase() {
+    public S createBase() {
         if (comp == null) {
             comp = createComp();
         }
 
-        return comp.create();
+        return comp.createBase();
     }
 }

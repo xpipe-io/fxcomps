@@ -2,14 +2,14 @@ package io.xpipe.fxcomps.comp;
 
 import com.jfoenix.controls.JFXButton;
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
 
 import java.util.function.Supplier;
 
-public class ButtonComp extends Comp {
+public class ButtonComp extends Comp<CompStructure<JFXButton>> {
 
     private final Supplier<String> name;
     private final ObjectProperty<Node> graphic;
@@ -38,11 +38,11 @@ public class ButtonComp extends Comp {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<JFXButton> createBase() {
         var button = new JFXButton(getName().get());
         button.setGraphic(getGraphic());
         button.setOnAction(e -> getListener().run());
         button.getStyleClass().add("button-comp");
-        return button;
+        return new CompStructure<>(button);
     }
 }

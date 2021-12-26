@@ -22,4 +22,7 @@ apply from: "$rootDir/deps/prettytime.gradle"
 
 dependencies {
     implementation 'com.jfoenix:jfoenix:9.0.10'
+
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 }

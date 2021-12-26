@@ -1,19 +1,20 @@
 package io.xpipe.fxcomps.augment;
 
+import io.xpipe.fxcomps.CompStructure;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 
-public class GrowAugment implements Augment {
+public class GrowAugment<S extends CompStructure<?>> implements Augment<S> {
 
-    public static GrowAugment grow(boolean width, boolean height) {
-        return new GrowAugment(width, height);
+    public static <S extends CompStructure<?>> GrowAugment<S> create(boolean width, boolean height) {
+        return new GrowAugment<>(width, height);
     }
 
-    private boolean width;
-    private boolean height;
+    private final boolean width;
+    private final boolean height;
 
-    public GrowAugment(boolean width, boolean height) {
+    private GrowAugment(boolean width, boolean height) {
         this.width = width;
         this.height = height;
     }
@@ -24,30 +25,28 @@ public class GrowAugment implements Augment {
         }
 
         if (width) {
-            r.prefWidthProperty().bind(Bindings.createDoubleBinding(() -> {
-                return p.getWidth() - p.getPadding().getLeft() - p.getPadding().getRight();
-            }, p.widthProperty(), p.paddingProperty()));
+            r.prefWidthProperty().bind(Bindings.createDoubleBinding(() ->
+                    p.getWidth() - p.getPadding().getLeft() - p.getPadding().getRight(),
+                    p.widthProperty(), p.paddingProperty()));
         }
         if (height) {
-            r.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> {
-                return p.getHeight() - p.getPadding().getTop() - p.getPadding().getBottom();
-            }, p.heightProperty(), p.paddingProperty()));
+            r.prefHeightProperty().bind(Bindings.createDoubleBinding(() ->
+                    p.getHeight() - p.getPadding().getTop() - p.getPadding().getBottom(),
+                    p.heightProperty(), p.paddingProperty()));
         }
     }
 
-
     @Override
-    public Region augment(Region r) {
-        r.parentProperty().addListener((c,o,n) -> {
+    public void augment(S struc) {
+        struc.get().parentProperty().addListener((c,o,n) -> {
             if (o instanceof Region) {
-                if (width) r.prefWidthProperty().unbind();
-                if (height) r.prefHeightProperty().unbind();
+                if (width) struc.get().prefWidthProperty().unbind();
+                if (height) struc.get().prefHeightProperty().unbind();
             }
 
-            bind(r, n);
+            bind(struc.get(), n);
         });
 
-        bind(r, r.getParent());
-        return r;
+        bind(struc.get(), struc.get().getParent());
     }
 }

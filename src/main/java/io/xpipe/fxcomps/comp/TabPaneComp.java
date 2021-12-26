@@ -2,19 +2,19 @@ package io.xpipe.fxcomps.comp;
 
 import com.jfoenix.controls.JFXTabPane;
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.Region;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TabPaneComp extends Comp {
+public class TabPaneComp extends Comp<CompStructure<JFXTabPane>> {
 
     @Override
-    protected Region createBase() {
+    public CompStructure<JFXTabPane> createBase() {
         JFXTabPane tabPane = new JFXTabPane();
         tabPane.getStyleClass().add("tab-pane-comp");
 
@@ -24,13 +24,13 @@ public class TabPaneComp extends Comp {
             ll.getStyleClass().add("name");
             ll.setAlignment(Pos.CENTER);
             tab.setGraphic(ll);
-            var content = e.comp().create();
+            var content = e.comp().createRegion();
             tab.setContent(content);
             tabPane.getTabs().add(tab);
             content.prefWidthProperty().bind(tabPane.widthProperty());
         }
 
-        return tabPane;
+        return new CompStructure<>(tabPane);
     }
 
     private final List<Entry> entries;
@@ -39,7 +39,7 @@ public class TabPaneComp extends Comp {
         this.entries = entries;
     }
 
-    public static record Entry(Supplier<String> name, String graphic, Comp comp) {
+    public static record Entry(Supplier<String> name, String graphic, Comp<?> comp) {
 
     }
 }

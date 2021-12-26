@@ -1,21 +1,23 @@
 package io.xpipe.fxcomps.comp;
 
+import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.ValueStoreComp;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 
 import java.util.Set;
 
-public class SvgComp extends ValueStoreComp<String> {
+public class SvgComp extends ValueStoreComp<CompStructure<HBox>, String> {
 
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
 
     public SvgComp(String content, int width, int height) {
         set(content);
@@ -30,7 +32,7 @@ public class SvgComp extends ValueStoreComp<String> {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<HBox> createBase() {
         var wv = new WebView();
         wv.setPageFill(Color.TRANSPARENT);
         wv.setDisable(true);
@@ -54,8 +56,8 @@ public class SvgComp extends ValueStoreComp<String> {
 
         var sp = new StackPane(wv);
         sp.setAlignment(Pos.CENTER);
-        var r = new AspectComp(WrapperComp.of(sp), ar).createBase();
-        r.getStyleClass().add("svg-comp");
+        var r = new AspectComp(Comp.of(() -> sp), ar).createBase();
+        r.get().getStyleClass().add("svg-comp");
         return r;
     }
 }

@@ -2,7 +2,9 @@ package io.xpipe.fxcomps.comp;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTabPane;
+import com.jfoenix.controls.JFXTextField;
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.ValueStoreComp;
 import javafx.beans.binding.Bindings;
 import javafx.css.PseudoClass;
@@ -10,13 +12,23 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.*;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class MultiStepComp extends ValueStoreComp<MultiStepComp.Step> {
+public abstract class MultiStepComp extends ValueStoreComp<CompStructure<VBox>, MultiStepComp.Step<?>> {
 
-    public static abstract class Step extends Comp {
+    @Value
+    @SuperBuilder
+    @EqualsAndHashCode(callSuper = true)
+    public static class Structure extends CompStructure<StackPane> {
+        JFXTextField textField;
+    }
+
+    public static abstract class Step<S extends CompStructure<?>> extends Comp<S> {
 
         private Runnable help;
 
@@ -28,7 +40,9 @@ public abstract class MultiStepComp extends ValueStoreComp<MultiStepComp.Step> {
 
         public void onBack() {}
 
-        public void onContinue() {}
+        public boolean onContinue() {
+            return true;
+        }
 
         public boolean canContinue() {
             return true;
@@ -38,6 +52,7 @@ public abstract class MultiStepComp extends ValueStoreComp<MultiStepComp.Step> {
     private static final PseudoClass COMPLETED = PseudoClass.getPseudoClass("completed");
     private static final PseudoClass CURRENT = PseudoClass.getPseudoClass("current");
     private static final PseudoClass NEXT = PseudoClass.getPseudoClass("next");
+
     private List<Entry> entries;
     private int currentIndex = 0;
 
@@ -196,7 +211,7 @@ public abstract class MultiStepComp extends ValueStoreComp<MultiStepComp.Step> {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<VBox> createBase() {
         this.entries = setup();
         this.set(entries.get(0).comp.get());
 
@@ -209,17 +224,17 @@ public abstract class MultiStepComp extends ValueStoreComp<MultiStepComp.Step> {
         for (var entry : comp.getEntries()) {
             compContent.getTabs().add(new Tab(null, null));
         }
-        compContent.getTabs().set(0, new Tab(null, comp.getValue().create()));
+        compContent.getTabs().set(0, new Tab(null, comp.getValue().createRegion()));
 
         content.getChildren().addAll(box, compContent, createStepNavigation());
         content.getStyleClass().add("multi-step-comp");
         content.setFillWidth(true);
         VBox.setVgrow(compContent, Priority.ALWAYS);
         comp.valueProperty().addListener((c, o, n) -> {
-            compContent.getTabs().get(comp.getCompIndex()).setContent(n.create());
+            compContent.getTabs().get(comp.getCompIndex()).setContent(n.createRegion());
             compContent.getSelectionModel().select(comp.getCompIndex());
         });
-        return content;
+        return new CompStructure<>(content);
     }
 
     protected abstract List<Entry> setup();

@@ -16,4 +16,5 @@ module io.xpipe.fxcomps {
     requires org.ocpsoft.prettytime;
 
     requires org.apache.commons.collections4;
+    requires static lombok;
 }

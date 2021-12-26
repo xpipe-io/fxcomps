@@ -1,26 +1,27 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
-import io.xpipe.fxcomps.store.ValueStoreComp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.geometry.Pos;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
 import java.util.List;
 
-public class LayerComp extends ValueStoreComp<List<Comp>> {
+public class LayerComp extends Comp<CompStructure<StackPane>> {
 
-    public LayerComp(List<Comp> comps) {
-        this.value.setValue(comps);
+    private final List<Comp<?>> comps;
+
+    public LayerComp(List<Comp<?>> comps) {
+        this.comps = comps;
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<StackPane> createBase() {
         var pane = new StackPane();
-        for (var c : value.getValue()) {
-            pane.getChildren().add(c.create());
+        for (var c : comps) {
+            pane.getChildren().add(c.createRegion());
         }
         pane.setAlignment(Pos.CENTER);
-        return pane;
+        return new CompStructure<>(pane);
     }
 }

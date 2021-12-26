@@ -1,16 +1,16 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
 
-public class CountComp<T> extends Comp {
+public class CountComp<T> extends Comp<CompStructure<Label>> {
 
-    private ObservableList<T> sub;
-    private ObservableList<T> all;
+    private final ObservableList<T> sub;
+    private final ObservableList<T> all;
 
     public CountComp(ObservableList<T> sub, ObservableList<T> all) {
         this.sub = sub;
@@ -18,7 +18,7 @@ public class CountComp<T> extends Comp {
     }
 
     @Override
-    protected Region createBase() {
+    public CompStructure<Label> createBase() {
         var label = new Label();
         label.setAlignment(Pos.CENTER);
         label.textProperty().bind(Bindings.createStringBinding(() -> {
@@ -29,6 +29,6 @@ public class CountComp<T> extends Comp {
             }
         }, sub, all));
         label.getStyleClass().add("count-comp");
-        return label;
+        return new CompStructure<>(label);
     }
 }

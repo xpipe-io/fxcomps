@@ -1,41 +1,59 @@
 package io.xpipe.fxcomps;
 
 import io.xpipe.fxcomps.augment.Augment;
-import io.xpipe.fxcomps.augment.StyleAugment;
+import io.xpipe.fxcomps.augment.TooltipAugment;
+import io.xpipe.fxcomps.comp.WrapperComp;
 import javafx.scene.layout.Region;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-public abstract class Comp {
+public abstract class Comp<S extends CompStructure<?>> {
 
-    private List<Augment> augments;
+    public static <R extends Region> Comp<CompStructure<R>> of(Supplier<R> r) {
+        return new WrapperComp<R>(r);
+    }
 
-    public Comp augment(Augment a) {
+    @SuppressWarnings("unchecked")
+    public static <IR extends Region, SIN extends CompStructure<IR>, OR extends Region> Comp<CompStructure<OR>> derive(
+            Comp<SIN> comp, Function<IR, OR> r) {
+        return of(() -> r.apply((IR) comp.createRegion()));
+    }
+
+    private List<Augment<S>> augments;
+
+    public Comp<S> apply(Augment<S> augment) {
         if (augments == null) {
             augments = new ArrayList<>();
         }
-        augments.add(a);
+        augments.add(augment);
         return this;
     }
 
-    public Comp styleClass(String styleClass) {
-        return augment(StyleAugment.styleClass(styleClass));
+    public Comp<S> styleClass(String styleClass) {
+        return apply(struc -> struc.get().getStyleClass().add(styleClass));
     }
 
-    public Region create() {
-        var r = createBase();
+    public Comp<S> tooltip(Supplier<String> text) {
+        return apply(new TooltipAugment<>(text));
+    }
+
+    public Region createRegion() {
+        return createStructure().get();
+    }
+
+    public S createStructure() {
+        S struc = createBase();
         if (augments != null) {
             for (var a : augments) {
-                var newR = a.augment(r);
-                if (newR != null) {
-                    r = newR;
-                }
+                a.augment(struc);
             }
         }
-        return r;
+        return struc;
     }
 
-    protected abstract Region createBase();
+    public abstract S createBase();
 }
 

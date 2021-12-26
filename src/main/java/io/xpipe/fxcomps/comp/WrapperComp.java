@@ -1,28 +1,21 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.scene.layout.Region;
 
 import java.util.function.Supplier;
 
-public class WrapperComp extends Comp {
+public class WrapperComp<R extends Region> extends Comp<CompStructure<R>> {
 
-    public static WrapperComp of(Supplier<? extends Region> r) {
-        return new WrapperComp(r);
-    }
+    private final Supplier<R> region;
 
-    public static WrapperComp of(Region r) {
-        return new WrapperComp(() -> r);
-    }
-
-    private final Supplier<? extends Region> region;
-
-    private WrapperComp(Supplier<? extends Region> region) {
+    public WrapperComp(Supplier<R> region) {
         this.region = region;
     }
 
     @Override
-    public Region createBase() {
-        return region.get();
+    public CompStructure<R> createBase() {
+        return new CompStructure<>(region.get());
     }
 }

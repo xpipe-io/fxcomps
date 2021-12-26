@@ -1,25 +1,41 @@
 package io.xpipe.fxcomps.comp;
 
 import com.jfoenix.controls.JFXTextField;
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.DefaultValueStoreComp;
 import javafx.animation.Animation;
 import javafx.animation.PauseTransition;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
 
-public class LazyTextField extends DefaultValueStoreComp<String> {
+public class LazyTextField extends DefaultValueStoreComp<CompStructure<StackPane>, String> {
+
+    @Value
+    @SuperBuilder
+    @EqualsAndHashCode(callSuper = true)
+    public static class Structure extends CompStructure<StackPane> {
+        JFXTextField textField;
+    }
 
     public LazyTextField(String content) {
         super(content);
     }
 
     @Override
-    protected Region createBase() {
+    public CompStructure<StackPane> createBase() {
         var sp = new StackPane();
         var r = new JFXTextField();
+        sp.focusedProperty().addListener((c,o,n) -> {
+            if (n) {
+                r.setDisable(false);
+                r.requestFocus();
+            }
+        });
         r.setPrefWidth(0);
         sp.getChildren().add(r);
         sp.prefWidthProperty().bind(r.prefWidthProperty());
@@ -46,6 +62,6 @@ public class LazyTextField extends DefaultValueStoreComp<String> {
             }
         });
         r.getStyleClass().add("lazy-text-field-comp");
-        return sp;
+        return Structure.builder().value(sp).textField(r).build();
     }
 }

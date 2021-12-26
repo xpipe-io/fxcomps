@@ -1,14 +1,14 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 
-public class BackgroundImageComp extends Comp {
+public class BackgroundImageComp extends Comp<CompStructure<Pane>> {
 
     private final Image image;
 
@@ -17,13 +17,13 @@ public class BackgroundImageComp extends Comp {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<Pane> createBase() {
         ImageView v = new ImageView(image);
         Pane pane = new Pane(v);
         v.fitWidthProperty().bind(pane.widthProperty());
         v.fitHeightProperty().bind(pane.heightProperty());
         if (image == null) {
-            return pane;
+            return new CompStructure<>(pane);
         }
 
         double imageAspect = image.getWidth() / image.getHeight();
@@ -55,6 +55,6 @@ public class BackgroundImageComp extends Comp {
         };
         pane.widthProperty().addListener(cl);
         pane.heightProperty().addListener(cl);
-        return pane;
+        return new CompStructure<>(pane);
     }
 }

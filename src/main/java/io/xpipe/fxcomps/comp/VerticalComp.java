@@ -1,6 +1,7 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -10,7 +11,7 @@ import javafx.scene.layout.VBox;
 import java.util.HashMap;
 import java.util.List;
 
-public class VerticalComp extends Comp {
+public class VerticalComp extends Comp<CompStructure<VBox>> {
 
     private final ObservableList<Comp> entries;
 
@@ -35,24 +36,24 @@ public class VerticalComp extends Comp {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<VBox> createBase() {
         VBox b = new VBox();
         b.setFillWidth(true);
         //b.setAlignment(Pos.CENTER);
         b.getStyleClass().add("vertical-comp");
         var map = new HashMap<Comp, Region>();
         for (var entry : getEntries()) {
-            var r = entry.create();
+            var r = entry.createRegion();
             b.getChildren().add(r);
             map.put(entry, r);
         }
         getEntries().addListener((ListChangeListener<? super Comp>) c -> {
             b.getChildren().clear();
             for (var entry : getEntries()) {
-                b.getChildren().add(map.computeIfAbsent(entry, Comp::create));
+                b.getChildren().add(map.computeIfAbsent(entry, Comp::createRegion));
             }
             map.keySet().retainAll(getEntries());
         });
-        return b;
+        return new CompStructure<>(b);
     }
 }

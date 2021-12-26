@@ -1,6 +1,7 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public final class SectionComp extends Comp {
+public final class SectionComp extends Comp<CompStructure<GridPane>> {
 
     private final Supplier<String> name;
     private final List<Entry> entries;
@@ -35,7 +36,7 @@ public final class SectionComp extends Comp {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<GridPane> createBase() {
         var comp = this;
         GridPane grid = new GridPane();
 
@@ -48,14 +49,14 @@ public final class SectionComp extends Comp {
         int row = 1;
         for (var entry : comp.getEntries()) {
             grid.add(new Label(entry.name().get()), 0, row);
-            Region val = entry.comp().create();
+            Region val = entry.comp().createRegion();
             grid.add(val, 1, row);
             GridPane.setHgrow(val, Priority.ALWAYS);
             row++;
         }
 
         grid.getStyleClass().add("section-comp");
-        return grid;
+        return new CompStructure<>(grid);
     }
 
     public void add(Supplier<String> name, Comp comp) {

@@ -1,14 +1,14 @@
 package io.xpipe.fxcomps.comp;
 
 import com.jfoenix.controls.JFXCheckBox;
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.DefaultValueStoreComp;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 
 import java.util.function.Supplier;
 
-public class NamedCheckboxComp extends DefaultValueStoreComp<Boolean> {
+public class NamedCheckboxComp extends DefaultValueStoreComp<CompStructure<HBox>, Boolean> {
 
     private final Supplier<String> label;
 
@@ -18,7 +18,7 @@ public class NamedCheckboxComp extends DefaultValueStoreComp<Boolean> {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<HBox> createBase() {
         var cb = new JFXCheckBox();
         cb.selectedProperty().bindBidirectional(valueProperty());
 
@@ -27,6 +27,6 @@ public class NamedCheckboxComp extends DefaultValueStoreComp<Boolean> {
 
         var box = new HBox(cb, text);
         box.setSpacing(5);
-        return box;
+        return new CompStructure<>(box);
     }
 }

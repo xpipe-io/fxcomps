@@ -1,6 +1,7 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
@@ -12,19 +13,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
 
-public class AspectComp extends Comp {
+public class AspectComp extends Comp<CompStructure<HBox>> {
 
-    private Property<Comp> comp;
-    private DoubleProperty aspectRatio;
+    private final Property<Comp<?>> comp;
+    private final DoubleProperty aspectRatio;
 
-    public AspectComp(Comp comp, double aspectRatio) {
+    public AspectComp(Comp<?> comp, double aspectRatio) {
         this.comp = new SimpleObjectProperty<>(comp);
         this.aspectRatio = new SimpleDoubleProperty(aspectRatio);
     }
 
     @Override
-    public Region createBase() {
-        var r = comp.getValue().create();
+    public CompStructure<HBox> createBase() {
+        var r = comp.getValue().createRegion();
         var sp = new HBox(r);
         sp.setAlignment(Pos.CENTER);
 
@@ -56,6 +57,10 @@ public class AspectComp extends Comp {
         sp.prefWidthProperty().bind(Bindings.createDoubleBinding(() -> {
             if (sp.prefHeightProperty().isBound()) {
                 var h = sp.getPrefHeight() - sp.getPadding().getTop() - sp.getPadding().getBottom();
+                if (h < 0) {
+                    return Region.USE_COMPUTED_SIZE;
+                }
+
                 return h * aspectRatio.get();
             } else {
                 return Region.USE_COMPUTED_SIZE;
@@ -63,6 +68,6 @@ public class AspectComp extends Comp {
         }, sp.prefWidthProperty(), sp.prefHeightProperty(), sp.paddingProperty()));
         sp.maxWidthProperty().bind(sp.prefWidthProperty());
 
-        return sp;
+        return new CompStructure<>(sp);
     }
 }

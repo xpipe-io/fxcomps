@@ -1,49 +1,36 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 
-public class HorizontalComp extends Comp {
+import java.util.List;
 
-    private final ObservableList<Comp> entries;
+public class HorizontalComp extends Comp<CompStructure<HBox>> {
 
-    public HorizontalComp() {
-        entries = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-    }
+    private final ObservableList<Comp<?>> entries;
 
-    public HorizontalComp(Comp... comps) {
+    public HorizontalComp(List<Comp<?>> comps) {
         entries = FXCollections.synchronizedObservableList(FXCollections.observableArrayList(comps));
     }
 
-    public void add(Comp comp) {
-        entries.add(comp);
-    }
-
-    public ObservableList<Comp> getEntries() {
-        return entries;
-    }
-
     @Override
-    public Region createBase() {
-        var comp = this;
+    public CompStructure<HBox> createBase() {
         HBox b = new HBox();
         b.setFillHeight(true);
-        b.setAlignment(Pos.CENTER);
         b.getStyleClass().add("horizontal-comp");
-        for (var entry : comp.getEntries()) {
-            b.getChildren().add(entry.create());
+        for (var entry : entries) {
+            b.getChildren().add(entry.createRegion());
         }
-        comp.getEntries().addListener((ListChangeListener<? super Comp>) c -> {
+        entries.addListener((ListChangeListener<? super Comp<?>>) c -> {
             b.getChildren().clear();
-            for (var entry : comp.getEntries()) {
-                b.getChildren().add(entry.create());
+            for (var entry : entries) {
+                b.getChildren().add(entry.createRegion());
             }
         });
-        return b;
+        return new CompStructure<>(b);
     }
 }

@@ -1,6 +1,7 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Orientation;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class DynamicOptionsComp extends Comp {
+public class DynamicOptionsComp extends Comp<CompStructure<FlowPane>> {
 
     private final List<Entry> entries;
 
@@ -23,7 +24,7 @@ public class DynamicOptionsComp extends Comp {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<FlowPane> createBase() {
         var flow = new FlowPane(Orientation.HORIZONTAL);
         flow.setAlignment(Pos.CENTER);
         flow.setHgap(7);
@@ -43,7 +44,7 @@ public class DynamicOptionsComp extends Comp {
             nameRegions.add(name);
             line.getChildren().add(name);
 
-            var r = entry.comp().create();
+            var r = entry.comp().createRegion();
             compRegions.add(r);
             line.getChildren().add(r);
 
@@ -70,14 +71,14 @@ public class DynamicOptionsComp extends Comp {
         }, nameRegions.stream().map(Region::widthProperty).toList().toArray(new Observable[0]));
         nameRegions.forEach(r -> r.prefWidthProperty().bind(nameWidthBinding));
 
-        return flow;
+        return new CompStructure<>(flow);
     }
 
     public List<Entry> getEntries() {
         return entries;
     }
 
-    public static record Entry(Supplier<String> name, Comp comp) {
+    public static record Entry(Supplier<String> name, Comp<?> comp) {
 
     }
 }

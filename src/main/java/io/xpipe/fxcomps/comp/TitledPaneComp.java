@@ -1,16 +1,16 @@
 package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.Region;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public class TitledPaneComp extends Comp {
+public class TitledPaneComp extends Comp<CompStructure<TitledPane>> {
 
-    private Supplier<String> name;
-    private Comp content;
+    private final Supplier<String> name;
+    private Comp<?> content;
     private final int height;
 
     public TitledPaneComp(Supplier<String> name, Comp content, int height) {
@@ -20,8 +20,8 @@ public class TitledPaneComp extends Comp {
     }
 
     @Override
-    protected Region createBase() {
-        var tp = new TitledPane(name.get(), content.create());
+    public CompStructure<TitledPane> createBase() {
+        var tp = new TitledPane(name.get(), content.createRegion());
         tp.getStyleClass().add("titled-pane-comp");
         tp.setExpanded(false);
         tp.setAnimated(false);
@@ -36,6 +36,6 @@ public class TitledPaneComp extends Comp {
                 tp.setPrefHeight(minimizedSize.get());
             }
         });
-        return tp;
+        return new CompStructure<>(tp);
     }
 }

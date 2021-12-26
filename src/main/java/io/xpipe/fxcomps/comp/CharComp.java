@@ -1,13 +1,13 @@
 package io.xpipe.fxcomps.comp;
 
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.ValueStoreComp;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Region;
 
-public class CharComp extends ValueStoreComp<Character> {
+public class CharComp extends ValueStoreComp<CompStructure<TextField>, Character> {
 
     @Override
-    public Region createBase() {
+    public CompStructure<TextField> createBase() {
         var text = new TextField(getValue() != null ? getValue().toString() : null);
         text.setOnKeyTyped(e -> {
             text.setText(e.getCharacter());
@@ -18,6 +18,6 @@ public class CharComp extends ValueStoreComp<Character> {
         valueProperty().addListener((c, o, n) -> {
             text.setText(n != null ? n.toString() : null);
         });
-        return text;
+        return new CompStructure<>(text);
     }
 }

@@ -1,10 +1,11 @@
 package io.xpipe.fxcomps.store;
 
 import io.xpipe.fxcomps.Comp;
+import io.xpipe.fxcomps.CompStructure;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
-public abstract class ValueStoreComp<T> extends Comp {
+public abstract class ValueStoreComp<S extends CompStructure<?>, T> extends Comp<S> {
 
     protected Property<T> value = new SimpleObjectProperty<>();
 

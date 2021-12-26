@@ -1,6 +1,8 @@
 package io.xpipe.fxcomps.store;
 
-public abstract class DefaultValueStoreComp<T> extends ValueStoreComp<T> {
+import io.xpipe.fxcomps.CompStructure;
+
+public abstract class DefaultValueStoreComp<S extends CompStructure<?>, T> extends ValueStoreComp<S, T> {
 
     private final T defaultVal;
 

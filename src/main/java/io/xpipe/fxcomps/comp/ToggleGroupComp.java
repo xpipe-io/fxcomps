@@ -1,15 +1,15 @@
 package io.xpipe.fxcomps.comp;
 
+import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.DefaultValueStoreComp;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import org.apache.commons.collections4.BidiMap;
 
 import java.util.function.Supplier;
 
-public class ToggleGroupComp<T> extends DefaultValueStoreComp<T> {
+public class ToggleGroupComp<T> extends DefaultValueStoreComp<CompStructure<HBox>, T> {
 
     private final BidiMap<T, Supplier<String>> range;
 
@@ -23,7 +23,7 @@ public class ToggleGroupComp<T> extends DefaultValueStoreComp<T> {
     }
 
     @Override
-    public Region createBase() {
+    public CompStructure<HBox> createBase() {
         var box = new HBox();
         box.getStyleClass().add("toggle-group-comp");
         ToggleGroup group = new ToggleGroup();
@@ -50,6 +50,6 @@ public class ToggleGroupComp<T> extends DefaultValueStoreComp<T> {
                 oldVal.setSelected(true);
         });
 
-        return box;
+        return new CompStructure<>(box);
     }
 }
