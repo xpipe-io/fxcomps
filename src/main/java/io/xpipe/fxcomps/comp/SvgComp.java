@@ -3,18 +3,19 @@ package io.xpipe.fxcomps.comp;
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
 import io.xpipe.fxcomps.store.ValueStoreComp;
+import io.xpipe.fxcomps.util.PlatformUtil;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 
 import java.util.Set;
 
-public class SvgComp extends ValueStoreComp<CompStructure<HBox>, String> {
+public class SvgComp extends ValueStoreComp<CompStructure<StackPane>, String> {
 
     private final int width;
     private final int height;
@@ -32,14 +33,14 @@ public class SvgComp extends ValueStoreComp<CompStructure<HBox>, String> {
     }
 
     @Override
-    public CompStructure<HBox> createBase() {
+    public CompStructure<StackPane> createBase() {
         var wv = new WebView();
         wv.setPageFill(Color.TRANSPARENT);
         wv.setDisable(true);
 
         wv.getEngine().loadContent(getHtml(value.getValue()));
         valueProperty().addListener((c, o, n) -> {
-            wv.getEngine().loadContent(getHtml(n));
+            PlatformUtil.runLaterIfNeeded(() -> wv.getEngine().loadContent(getHtml(n)));
         });
 
         wv.getChildrenUnmodifiable().addListener((ListChangeListener<Node>) change -> {
@@ -49,7 +50,7 @@ public class SvgComp extends ValueStoreComp<CompStructure<HBox>, String> {
             }
         });
 
-        double ar = (double) width / height;
+        var ar = new ReadOnlyDoubleWrapper((double) width / height);
         wv.zoomProperty().bind(Bindings.createDoubleBinding(() -> {
             return wv.getWidth() / width;
         }, wv.widthProperty()));

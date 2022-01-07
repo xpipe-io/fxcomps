@@ -2,31 +2,33 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
+import io.xpipe.fxcomps.util.PlatformUtil;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 
 
-public class AspectComp extends Comp<CompStructure<HBox>> {
+public class AspectComp extends Comp<CompStructure<StackPane>> {
 
-    private final Property<Comp<?>> comp;
-    private final DoubleProperty aspectRatio;
+    private final Comp<?> comp;
+    private final ObservableValue<Number> aspectRatio;
 
-    public AspectComp(Comp<?> comp, double aspectRatio) {
-        this.comp = new SimpleObjectProperty<>(comp);
-        this.aspectRatio = new SimpleDoubleProperty(aspectRatio);
+    public AspectComp(Comp<?> comp, ObservableValue<Number> aspectRatio) {
+        this.comp = comp;
+        this.aspectRatio = PlatformUtil.wrap(aspectRatio);
+    }
+
+    private double getRatio() {
+        return aspectRatio.getValue().doubleValue();
     }
 
     @Override
-    public CompStructure<HBox> createBase() {
-        var r = comp.getValue().createRegion();
-        var sp = new HBox(r);
+    public CompStructure<StackPane> createBase() {
+        var r = comp.createRegion();
+        var sp = new StackPane(r);
         sp.setAlignment(Pos.CENTER);
 
         ChangeListener<? super Number> l = (c, o, n) -> {
@@ -36,12 +38,12 @@ public class AspectComp extends Comp<CompStructure<HBox>> {
                 return;
             }
 
-            boolean widthLimited = w / h < aspectRatio.get();
+            boolean widthLimited = w / h < getRatio();
             if (widthLimited) {
                 r.setPrefWidth(w);
-                r.setPrefHeight(w / aspectRatio.get());
+                r.setPrefHeight(w / getRatio());
             } else {
-                r.setPrefWidth(h * aspectRatio.get());
+                r.setPrefWidth(h * getRatio());
                 r.setPrefHeight(h);
             }
         };
@@ -61,7 +63,7 @@ public class AspectComp extends Comp<CompStructure<HBox>> {
                     return Region.USE_COMPUTED_SIZE;
                 }
 
-                return h * aspectRatio.get();
+                return h * getRatio();
             } else {
                 return Region.USE_COMPUTED_SIZE;
             }

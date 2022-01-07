@@ -12,7 +12,7 @@ public class LayerComp extends Comp<CompStructure<StackPane>> {
     private final List<Comp<?>> comps;
 
     public LayerComp(List<Comp<?>> comps) {
-        this.comps = comps;
+        this.comps = List.copyOf(comps);
     }
 
     @Override

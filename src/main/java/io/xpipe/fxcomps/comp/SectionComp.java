@@ -2,54 +2,66 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
+import io.xpipe.fxcomps.util.PlatformUtil;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import lombok.EqualsAndHashCode;
+import lombok.Singular;
+import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public final class SectionComp extends Comp<CompStructure<GridPane>> {
 
-    private final Supplier<String> name;
+    private final ObservableValue<String> name;
     private final List<Entry> entries;
 
     public SectionComp() {
-        this(() -> null);
+        this((ObservableValue<String>) null);
     }
 
-    public SectionComp(Supplier<String> name) {
+    public SectionComp(ObservableValue<String> name) {
         this.name = name;
         this.entries = new ArrayList<>();
     }
 
     public SectionComp(List<Entry> entries) {
-        this.name = () -> null;
+        this.name = null;
         this.entries = entries;
     }
 
-    public SectionComp(Supplier<String> name, List<Entry> entries) {
-        this.name = name;
+    public SectionComp(ObservableValue<String> name, List<Entry> entries) {
+        this.name = PlatformUtil.wrap(name);
         this.entries = entries;
     }
 
     @Override
     public CompStructure<GridPane> createBase() {
-        var comp = this;
         GridPane grid = new GridPane();
+        var struc = Structure.builder().value(grid);
 
-        if (comp.getName() != null) {
-            var t = new Label(comp.getName());
+        if (name != null) {
+            var t = new Label();
+            t.textProperty().bind(name);
             t.getStyleClass().add("header");
             grid.add(t, 0, 0, 2, 1);
+            struc.sectionName(t);
         }
 
         int row = 1;
-        for (var entry : comp.getEntries()) {
-            grid.add(new Label(entry.name().get()), 0, row);
+        for (var entry : entries) {
+            var l = new Label();
+            l.textProperty().bind(entry.name);
+            struc.entryName(l);
+            grid.add(l, 0, row);
             Region val = entry.comp().createRegion();
+            struc.entryValue(val);
             grid.add(val, 1, row);
             GridPane.setHgrow(val, Priority.ALWAYS);
             row++;
@@ -59,26 +71,26 @@ public final class SectionComp extends Comp<CompStructure<GridPane>> {
         return new CompStructure<>(grid);
     }
 
-    public void add(Supplier<String> name, Comp comp) {
-        entries.add(new Entry(name, comp));
+    @Value
+    @SuperBuilder
+    @EqualsAndHashCode(callSuper = true)
+    public static class Structure extends CompStructure<GridPane> {
+        Label sectionName;
+        @Singular
+        List<Label> entryNames;
+        @Singular
+        List<Region> entryValues;
     }
 
-    public void add(Supplier<String> name, Comp comp, Runnable help) {
-        entries.add(new Entry(name, comp));
-    }
+    public static record Entry(ObservableValue<String> name, Comp<?> comp) {
 
-    public List<Entry> getEntries() {
-        return entries;
-    }
+        public Entry(String name, Comp<?> comp) {
+            this(new SimpleObjectProperty<>(name), comp);
+        }
 
-    public String getName() {
-        return name.get();
-    }
-
-    public static record Entry(Supplier<String> name, Comp comp) {
-
-        public Entry(String name, Comp comp) {
-            this(() -> name, comp);
+        public Entry(ObservableValue<String> name, Comp<?> comp) {
+            this.name = PlatformUtil.wrap(name);
+            this.comp = comp;
         }
     }
 }
