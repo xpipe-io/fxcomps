@@ -2,28 +2,41 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
-import io.xpipe.fxcomps.store.ValueStoreComp;
 import io.xpipe.fxcomps.util.PlatformUtil;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 
 import java.util.Set;
 
-public class SvgComp extends ValueStoreComp<CompStructure<StackPane>, String> {
+public class SvgComp extends ReplacementComp<AspectComp.Structure<SvgComp.Structure>> {
 
-    private final int width;
-    private final int height;
+    @Value
+    @EqualsAndHashCode(callSuper = true)
+    public static class Structure extends CompStructure<StackPane> {
+        WebView webView;
 
-    public SvgComp(String content, int width, int height) {
-        set(content);
-        this.width = width;
-        this.height = height;
+        public Structure(StackPane value, WebView webView) {
+            super(value);
+            this.webView = webView;
+        }
+    }
+
+    private final ObservableValue<Number> width;
+    private final ObservableValue<Number> height;
+    private final ObservableValue<String> svgContent;
+
+    public SvgComp(ObservableValue<Number> width, ObservableValue<Number> height, ObservableValue<String> svgContent) {
+        this.width = PlatformUtil.wrap(width);
+        this.height = PlatformUtil.wrap(height);
+        this.svgContent = PlatformUtil.wrap(svgContent);
     }
 
     private String getHtml(String content) {
@@ -32,17 +45,17 @@ public class SvgComp extends ValueStoreComp<CompStructure<StackPane>, String> {
                 "</body></html>";
     }
 
-    @Override
-    public CompStructure<StackPane> createBase() {
+    private WebView createWebView() {
         var wv = new WebView();
         wv.setPageFill(Color.TRANSPARENT);
         wv.setDisable(true);
 
-        wv.getEngine().loadContent(getHtml(value.getValue()));
-        valueProperty().addListener((c, o, n) -> {
-            PlatformUtil.runLaterIfNeeded(() -> wv.getEngine().loadContent(getHtml(n)));
+        wv.getEngine().loadContent(getHtml(svgContent.getValue()));
+        svgContent.addListener((c, o, n) -> {
+            wv.getEngine().loadContent(getHtml(n));
         });
 
+        // Hide scrollbars that popup on every content change. Bug in WebView?
         wv.getChildrenUnmodifiable().addListener((ListChangeListener<Node>) change -> {
             Set<Node> scrolls = wv.lookupAll(".scroll-bar");
             for (Node scroll : scrolls) {
@@ -50,15 +63,23 @@ public class SvgComp extends ValueStoreComp<CompStructure<StackPane>, String> {
             }
         });
 
-        var ar = new ReadOnlyDoubleWrapper((double) width / height);
+        // As the aspect ratio of the WebView is kept constant, we can compute the zoom only using the width
         wv.zoomProperty().bind(Bindings.createDoubleBinding(() -> {
-            return wv.getWidth() / width;
-        }, wv.widthProperty()));
+            return wv.getWidth() / width.getValue().doubleValue();
+        }, wv.widthProperty(), width));
+        return wv;
+    }
 
-        var sp = new StackPane(wv);
-        sp.setAlignment(Pos.CENTER);
-        var r = new AspectComp(Comp.of(() -> sp), ar).createBase();
-        r.get().getStyleClass().add("svg-comp");
-        return r;
+    @Override
+    protected Comp<AspectComp.Structure<Structure>> createComp() {
+        var ar = Bindings.createDoubleBinding(() -> {
+            return width.getValue().doubleValue() / height.getValue().doubleValue();
+        }, width, height);
+        return new AspectComp<>(Comp.ofStructure(() -> {
+            var wv = createWebView();
+            var sp = new StackPane(wv);
+            sp.setAlignment(Pos.CENTER);
+            return new Structure(sp, wv);
+        }), ar).styleClass("svg-comp");
     }
 }

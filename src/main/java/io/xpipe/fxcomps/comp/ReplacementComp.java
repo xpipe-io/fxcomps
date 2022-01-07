@@ -10,7 +10,7 @@ public abstract class ReplacementComp<S extends CompStructure<?>> extends Comp<S
     protected abstract Comp<S> createComp();
 
     @Override
-    public S createBase() {
+    public final S createBase() {
         if (comp == null) {
             comp = createComp();
         }

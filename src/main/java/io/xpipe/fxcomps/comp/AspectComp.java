@@ -9,14 +9,27 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 
 
-public class AspectComp extends Comp<CompStructure<StackPane>> {
+public class AspectComp<S extends CompStructure<?>> extends Comp<AspectComp.Structure<S>> {
 
-    private final Comp<?> comp;
+    @Value
+    @EqualsAndHashCode(callSuper = true)
+    public static class Structure<S extends CompStructure<?>> extends CompStructure<StackPane> {
+        S content;
+
+        public Structure(StackPane value, S content) {
+            super(value);
+            this.content = content;
+        }
+    }
+
+    private final Comp<S> comp;
     private final ObservableValue<Number> aspectRatio;
 
-    public AspectComp(Comp<?> comp, ObservableValue<Number> aspectRatio) {
+    public AspectComp(Comp<S> comp, ObservableValue<Number> aspectRatio) {
         this.comp = comp;
         this.aspectRatio = PlatformUtil.wrap(aspectRatio);
     }
@@ -26,8 +39,9 @@ public class AspectComp extends Comp<CompStructure<StackPane>> {
     }
 
     @Override
-    public CompStructure<StackPane> createBase() {
-        var r = comp.createRegion();
+    public Structure<S> createBase() {
+        var struc = comp.createStructure();
+        var r = struc.get();
         var sp = new StackPane(r);
         sp.setAlignment(Pos.CENTER);
 
@@ -70,6 +84,6 @@ public class AspectComp extends Comp<CompStructure<StackPane>> {
         }, sp.prefWidthProperty(), sp.prefHeightProperty(), sp.paddingProperty()));
         sp.maxWidthProperty().bind(sp.prefWidthProperty());
 
-        return new CompStructure<>(sp);
+        return new Structure<>(sp, struc);
     }
 }
