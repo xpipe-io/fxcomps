@@ -7,11 +7,11 @@ import javafx.scene.layout.StackPane;
 
 import java.util.List;
 
-public class LayerComp extends Comp<CompStructure<StackPane>> {
+public class StackComp extends Comp<CompStructure<StackPane>> {
 
     private final List<Comp<?>> comps;
 
-    public LayerComp(List<Comp<?>> comps) {
+    public StackComp(List<Comp<?>> comps) {
         this.comps = List.copyOf(comps);
     }
 

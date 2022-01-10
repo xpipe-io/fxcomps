@@ -14,11 +14,7 @@ java {
 }
 
 apply from: "$rootDir/deps/javafx.gradle"
-apply from: "$rootDir/deps/richtextfx.gradle"
-apply from: "$rootDir/deps/ikonli.gradle"
 apply from: "$rootDir/deps/commons.gradle"
-apply from: "$rootDir/deps/slf4j.gradle"
-apply from: "$rootDir/deps/prettytime.gradle"
 
 dependencies {
     implementation 'com.jfoenix:jfoenix:9.0.10'

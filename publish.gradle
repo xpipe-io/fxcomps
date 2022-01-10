@@ -1,0 +1,50 @@
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                name = 'FxComps'
+                description = 'The FxComps library provides a new approach to creating JavaFX interfaces and offers a quicker and more robust user interface development workflow.'
+                url = 'https://github.com/xpipe-io/fxcomps'
+                licenses {
+                    license {
+                        name = 'The MIT License (MIT)'
+                        url = 'https://github.com/xpipe-io/fxcomps/LICENSE.md'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'crschnick'
+                        name = 'Christopher Schnick'
+                        email = 'crschnick@xpipe.io'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/xpipe-io/fxcomps.git'
+                    developerConnection = 'scm:git:ssh://github.com/xpipe-io/fxcomps.git'
+                    url = 'https://github.com/xpipe-io/fxcomps'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                setUsername "${project.hasProperty('sonatypeUsername') ? project.property('sonatypeUsername') : ''}"
+                setPassword "${project.hasProperty('sonatypePassword') ? project.property('sonatypePassword') : ''}"
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}

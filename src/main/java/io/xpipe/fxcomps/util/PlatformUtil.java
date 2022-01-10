@@ -11,39 +11,52 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.lang.ref.WeakReference;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlatformUtil {
 
-    public static Observable wrap() {
+    public static Observable wrap(Observable o) {
         return new Observable() {
+
+            private final Map<InvalidationListener, InvalidationListener> invListenerMap = new ConcurrentHashMap<>();
+
             @Override
             public void addListener(InvalidationListener listener) {
+                InvalidationListener l = o -> {
+                    PlatformUtil.runLaterIfNeeded(() -> listener.invalidated(o));
+                };
 
+                invListenerMap.put(listener, l);
+                o.addListener(l);
             }
 
             @Override
             public void removeListener(InvalidationListener listener) {
-
+                o.removeListener(invListenerMap.getOrDefault(listener, listener));
             }
         };
     }
 
     public static <T> ObservableValue<T> wrap(ObservableValue<T> ov) {
         return new ObservableValue<T>() {
+
+            private final Map<ChangeListener<? super T>, ChangeListener<? super T>> changeListenerMap = new ConcurrentHashMap<>();
+            private final Map<InvalidationListener, InvalidationListener> invListenerMap = new ConcurrentHashMap<>();
+
             @Override
             public void addListener(ChangeListener<? super T> listener) {
-                ov.addListener((c,o,n) -> {
+                ChangeListener<? super T> l = (c,o,n) -> {
                     PlatformUtil.runLaterIfNeeded(() -> listener.changed(c,o,n));
-                });
+                };
+
+                changeListenerMap.put(listener, l);
+                ov.addListener(l);
             }
 
             @Override
             public void removeListener(ChangeListener<? super T> listener) {
-                ov.removeListener(listener);
+                ov.removeListener(changeListenerMap.getOrDefault(listener, listener));
             }
 
             @Override
@@ -53,28 +66,40 @@ public class PlatformUtil {
 
             @Override
             public void addListener(InvalidationListener listener) {
-                ov.addListener(listener);
+                InvalidationListener l = o -> {
+                    PlatformUtil.runLaterIfNeeded(() -> listener.invalidated(o));
+                };
+
+                invListenerMap.put(listener, l);
+                ov.addListener(l);
             }
 
             @Override
             public void removeListener(InvalidationListener listener) {
-                ov.removeListener(listener);
+                ov.removeListener(invListenerMap.getOrDefault(listener, listener));
             }
         };
     }
 
     public static <T> ObservableList<T> wrap(ObservableList<T> ol) {
         return new ObservableList<T>() {
+
+            private final Map<ListChangeListener<? super T>, ListChangeListener<? super T>> listChangeListenerMap = new ConcurrentHashMap<>();
+            private final Map<InvalidationListener, InvalidationListener> invListenerMap = new ConcurrentHashMap<>();
+
             @Override
             public void addListener(ListChangeListener<? super T> listener) {
-                ol.addListener((ListChangeListener<? super T>) (lc) -> {
+                ListChangeListener<? super T> l = (lc) -> {
                     PlatformUtil.runLaterIfNeeded(() -> listener.onChanged(lc));
-                });
+                };
+
+                listChangeListenerMap.put(listener, l);
+                ol.addListener(l);
             }
 
             @Override
             public void removeListener(ListChangeListener<? super T> listener) {
-                ol.removeListener(listener);
+                ol.removeListener(listChangeListenerMap.getOrDefault(listener, listener));
             }
 
             @Override
@@ -224,25 +249,27 @@ public class PlatformUtil {
 
             @Override
             public void addListener(InvalidationListener listener) {
-                ol.addListener((InvalidationListener) (lc) -> {
-                    PlatformUtil.runLaterIfNeeded(() -> listener.invalidated(lc));
-                });
+                InvalidationListener l = o -> {
+                    PlatformUtil.runLaterIfNeeded(() -> listener.invalidated(o));
+                };
+
+                invListenerMap.put(listener, l);
+                ol.addListener(l);
             }
 
             @Override
             public void removeListener(InvalidationListener listener) {
-                ol.removeListener(listener);
+                ol.removeListener(invListenerMap.getOrDefault(listener, listener));
             }
         };
     }
 
-    public static <T> void connect(Property<T> property1, Property<T> property2) {
-        property1.bindBidirectional(property2);
-        final var binding = new PlatformGenericBidirectionalBinding<T>(property1, property2);
-        property1.setValue(property2.getValue());
-        property1.getValue();
-        property1.addListener(binding);
-        property2.addListener(binding);
+    public static <T> void connect(Property<T> outer, Property<T> platform) {
+        final var binding = new PlatformGenericBidirectionalBinding<T>(outer, platform);
+        platform.setValue(outer.getValue());
+        platform.getValue();
+        outer.addListener(binding);
+        platform.addListener(binding);
     }
 
     private static class PlatformGenericBidirectionalBinding<T> implements InvalidationListener, WeakListener {
@@ -289,8 +316,7 @@ public class PlatformUtil {
                 return false;
             }
 
-            if (obj instanceof PlatformGenericBidirectionalBinding<?>) {
-                final PlatformGenericBidirectionalBinding otherBinding = (PlatformGenericBidirectionalBinding) obj;
+            if (obj instanceof final PlatformGenericBidirectionalBinding<?> otherBinding) {
                 final Object propertyB1 = otherBinding.getProperty1();
                 final Object propertyB2 = otherBinding.getProperty2();
                 if ((propertyB1 == null) || (propertyB2 == null)) {
