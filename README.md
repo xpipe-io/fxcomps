@@ -1,3 +1,7 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.xpipe/fxcomps/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.xpipe/fxcomps)
+[![javadoc](https://javadoc.io/badge2/io.xpipe/fxcomps/javadoc.svg)](https://javadoc.io/doc/io.xpipe/fxcomps)
+[![Build Status](https://travis-ci.org/xpipe-io/fxcomps.svg?branch=master)](https://travis-ci.org/io.xpipe/fxcomps)
+
 # FxComps (WIP)
 
 The FxComps library provides a new approach to creating JavaFX interfaces and
@@ -110,3 +114,10 @@ As the central idea of this library is that you create your own Comps, it is des
         // You can now create node instances of your layout
         var region = layout.createRegion();
 ````
+
+## Installation
+
+Note that as this library is relatively new and is primarily used for internal projects, it might not be production ready for other purposes.
+If you are still interested in trying it out, you can find it in the
+[Maven Central Repository](https://search.maven.org/artifact/io.xpipe/fxcomps).
+The javadocs are available at [javadoc.io](https://javadoc.io/doc/io.xpipe/fxcomps).
