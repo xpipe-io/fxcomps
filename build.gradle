@@ -1,7 +1,14 @@
 plugins {
     id 'java-library'
-    id "org.moditect.gradleplugin" version "1.0.0-rc3"
+    id 'maven-publish'
+    id 'signing'
 }
+
+apply from: 'publish.gradle'
+
+version '0.1'
+group 'io.xpipe'
+archivesBaseName = 'fxcomps'
 
 repositories {
     mavenCentral()
@@ -13,12 +20,33 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-apply from: "$rootDir/deps/javafx.gradle"
-apply from: "$rootDir/deps/commons.gradle"
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
+def currentOS = DefaultNativePlatform.currentOperatingSystem;
+def platform
+if (currentOS.isWindows()) {
+    platform = 'win'
+} else if (currentOS.isLinux()) {
+    platform = 'linux'
+} else if (currentOS.isMacOsX()) {
+    platform = 'mac'
+}
 
 dependencies {
-    implementation 'com.jfoenix:jfoenix:9.0.10'
+    implementation "org.openjfx:javafx-base:18-ea+4:${platform}"
+    implementation "org.openjfx:javafx-controls:18-ea+4:${platform}"
+    implementation "org.openjfx:javafx-graphics:18-ea+4:${platform}"
+    implementation "org.openjfx:javafx-media:18-ea+4:${platform}"
+    implementation "org.openjfx:javafx-web:18-ea+4:${platform}"
 
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
+}
+
+javadoc{
+    source = sourceSets.main.allJava
+    options {
+        addStringOption('-release', '17')
+        addStringOption('link', 'https://docs.oracle.com/en/java/javase/17/docs/api/')
+    }
 }

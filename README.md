@@ -79,18 +79,18 @@ this library also comes with a few Comp implementations and some Augments.
 These are very general implementations and can be seen as example implementations.
 
 #### Comps
-- [AspectComp](src/main/java/): Tries to maintain a fixed aspect ratio of
+- [AspectComp](src/main/java/io/xpipe/fxcomps/comp/AspectComp.java): Tries to maintain a fixed aspect ratio of
   the contained Comp and actively changes its preferred size for that.
   Requires that exactly one preferred size property, width or height, must be bound.
-- [HorizontalComp]() / (VerticalComp)[]: Simple Comp implementation to create a HBox/VBox using Comps as input
-- [StackComp](): Simple Comp implementation to easily create a stack pane using Comps as input
-- [SectionComp](): A Comp that layouts its contents as a titled section where each entry has a name
-- [SvgComp](): A Comp that creates an `.svg` image node using a WebView
-- [WrapperComp](): A Comp that represents an anonymous Comp and is defined by a Supplier<Region>
+- [HorizontalComp](src/main/java/io/xpipe/fxcomps/comp/HorizontalComp.java) / (VerticalComp)[]: Simple Comp implementation to create a HBox/VBox using Comps as input
+- [StackComp](src/main/java/io/xpipe/fxcomps/comp/StackComp.java): Simple Comp implementation to easily create a stack pane using Comps as input
+- [SectionComp](src/main/java/io/xpipe/fxcomps/comp/SectionComp.java): A Comp that layouts its contents as a titled section where each entry has a name
+- [SvgComp](src/main/java/io/xpipe/fxcomps/comp/SvgComp.java): A Comp that creates an `.svg` image node using a WebView
+- [WrapperComp](src/main/java/io/xpipe/fxcomps/comp/WrapperComp.java): A Comp that represents an anonymous Comp and is defined by a Supplier<Region>
 
 #### Augments
-- [GrowAugment](): Binds the width/height of a Comp to its parent, adjusted for parent padding
-- [PopupMenuComp](): Allows you to show a context menu when a comp is left-clicked in addition to right-click
+- [GrowAugment](src/main/java/io/xpipe/fxcomps/augment/GrowAugment.java): Binds the width/height of a Comp to its parent, adjusted for parent padding
+- [PopupMenuComp](src/main/java/io/xpipe/fxcomps/augment/PopupMenuAugment.java): Allows you to show a context menu when a comp is left-clicked in addition to right-click
 
 
 ## Creating your own Comps

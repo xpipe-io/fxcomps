@@ -1,8 +1,8 @@
 package io.xpipe.fxcomps;
 
 import io.xpipe.fxcomps.augment.Augment;
-import io.xpipe.fxcomps.augment.TooltipAugment;
 import io.xpipe.fxcomps.comp.WrapperComp;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Region;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public abstract class Comp<S extends CompStructure<?>> {
     }
 
     public Comp<S> tooltip(Supplier<String> text) {
-        return apply(new TooltipAugment<>(text));
+        return apply(r -> Tooltip.install(r.get(), new Tooltip(text.get())));
     }
 
     public Region createRegion() {

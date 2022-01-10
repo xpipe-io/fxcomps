@@ -8,6 +8,5 @@ module io.xpipe.fxcomps {
     requires javafx.controls;
     requires java.desktop;
     requires javafx.web;
-    requires com.jfoenix;
     requires static lombok;
 }
