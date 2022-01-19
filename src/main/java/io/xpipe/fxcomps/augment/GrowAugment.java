@@ -26,13 +26,18 @@ public class GrowAugment<S extends CompStructure<?>> implements Augment<S> {
 
         if (width) {
             r.prefWidthProperty().bind(Bindings.createDoubleBinding(() ->
-                    p.getWidth() - p.getPadding().getLeft() - p.getPadding().getRight(),
-                    p.widthProperty(), p.paddingProperty()));
+                    p.getWidth() - p.getInsets().getLeft() - p.getInsets().getRight(),
+                    p.widthProperty(), p.insetsProperty()));
         }
         if (height) {
-            r.prefHeightProperty().bind(Bindings.createDoubleBinding(() ->
-                    p.getHeight() - p.getPadding().getTop() - p.getPadding().getBottom(),
-                    p.heightProperty(), p.paddingProperty()));
+            r.prefHeightProperty().bind(Bindings.createDoubleBinding(() -> {
+                    var val = p.getHeight() - p.getInsets().getTop() - p.getInsets().getBottom();
+                    if (val <= 0) {
+                        return Region.USE_COMPUTED_SIZE;
+                    }
+                    return val;
+                    },
+                    p.heightProperty(), p.insetsProperty()));
         }
     }
 

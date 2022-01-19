@@ -15,6 +15,6 @@ public abstract class ReplacementComp<S extends CompStructure<?>> extends Comp<S
             comp = createComp();
         }
 
-        return comp.createBase();
+        return comp.createStructure();
     }
 }
