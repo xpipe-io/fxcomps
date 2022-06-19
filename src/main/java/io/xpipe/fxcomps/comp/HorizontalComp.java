@@ -2,6 +2,7 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
+import io.xpipe.fxcomps.SimpleCompStructure;
 import javafx.scene.layout.HBox;
 
 import java.util.List;
@@ -21,6 +22,6 @@ public class HorizontalComp extends Comp<CompStructure<HBox>> {
         for (var entry : entries) {
             b.getChildren().add(entry.createRegion());
         }
-        return new CompStructure<>(b);
+        return new SimpleCompStructure<>(b);
     }
 }

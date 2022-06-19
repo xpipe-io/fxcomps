@@ -6,7 +6,7 @@ public abstract class SimpleComp extends Comp<CompStructure<Region>> {
 
     @Override
     public final CompStructure<Region> createBase() {
-        return new CompStructure<>(createSimple());
+        return new SimpleCompStructure<>(createSimple());
     }
 
     protected abstract Region createSimple();

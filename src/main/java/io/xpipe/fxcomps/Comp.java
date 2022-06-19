@@ -13,7 +13,10 @@ import java.util.function.Supplier;
 public abstract class Comp<S extends CompStructure<?>> {
 
     public static <R extends Region> Comp<CompStructure<R>> of(Supplier<R> r) {
-        return new WrapperComp<>(() -> new CompStructure<>(r.get()));
+        return new WrapperComp<>(() -> {
+            var region = r.get();
+            return () -> region;
+        });
     }
 
     public static <S extends CompStructure<?>> Comp<S> ofStructure(Supplier<S> r) {

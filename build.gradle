@@ -2,13 +2,14 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
+    id "io.codearte.nexus-staging" version "0.30.0"
 }
-
-apply from: 'publish.gradle'
 
 version '0.1'
 group 'io.xpipe'
 archivesBaseName = 'fxcomps'
+
+apply from: 'publish.gradle'
 
 repositories {
     mavenCentral()
@@ -18,6 +19,8 @@ java {
     modularity.inferModulePath = true
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:unchecked"
 }
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
@@ -33,14 +36,14 @@ if (currentOS.isWindows()) {
 }
 
 dependencies {
-    implementation "org.openjfx:javafx-base:18-ea+4:${platform}"
-    implementation "org.openjfx:javafx-controls:18-ea+4:${platform}"
-    implementation "org.openjfx:javafx-graphics:18-ea+4:${platform}"
-    implementation "org.openjfx:javafx-media:18-ea+4:${platform}"
-    implementation "org.openjfx:javafx-web:18-ea+4:${platform}"
+    compileOnly "org.openjfx:javafx-base:18:${platform}"
+    compileOnly "org.openjfx:javafx-controls:18:${platform}"
+    compileOnly "org.openjfx:javafx-graphics:18:${platform}"
+    compileOnly "org.openjfx:javafx-media:18:${platform}"
+    compileOnly "org.openjfx:javafx-web:18:${platform}"
 
-    compileOnly 'org.projectlombok:lombok:1.18.22'
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 javadoc{

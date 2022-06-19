@@ -2,27 +2,28 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
-import io.xpipe.fxcomps.util.PlatformUtil;
+import io.xpipe.fxcomps.util.PlatformThread;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import lombok.EqualsAndHashCode;
+import lombok.Builder;
 import lombok.Value;
 
 
 public class AspectComp<S extends CompStructure<?>> extends Comp<AspectComp.Structure<S>> {
 
     @Value
-    @EqualsAndHashCode(callSuper = true)
-    public static class Structure<S extends CompStructure<?>> extends CompStructure<StackPane> {
+    @Builder
+    public static class Structure<S extends CompStructure<?>> implements CompStructure<StackPane> {
+        StackPane pane;
         S content;
 
-        public Structure(StackPane value, S content) {
-            super(value);
-            this.content = content;
+        @Override
+        public StackPane get() {
+            return pane;
         }
     }
 
@@ -31,7 +32,7 @@ public class AspectComp<S extends CompStructure<?>> extends Comp<AspectComp.Stru
 
     public AspectComp(Comp<S> comp, ObservableValue<Number> aspectRatio) {
         this.comp = comp;
-        this.aspectRatio = PlatformUtil.wrap(aspectRatio);
+        this.aspectRatio = PlatformThread.sync(aspectRatio);
     }
 
     private double getRatio() {

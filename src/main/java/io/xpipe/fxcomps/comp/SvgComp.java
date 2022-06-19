@@ -2,7 +2,7 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
-import io.xpipe.fxcomps.util.PlatformUtil;
+import io.xpipe.fxcomps.util.PlatformThread;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -11,7 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
-import lombok.EqualsAndHashCode;
+import lombok.Builder;
 import lombok.Value;
 
 import java.util.Set;
@@ -19,13 +19,14 @@ import java.util.Set;
 public class SvgComp extends ReplacementComp<AspectComp.Structure<SvgComp.Structure>> {
 
     @Value
-    @EqualsAndHashCode(callSuper = true)
-    public static class Structure extends CompStructure<StackPane> {
+    @Builder
+    public static class Structure implements CompStructure<StackPane> {
+        StackPane pane;
         WebView webView;
 
-        public Structure(StackPane value, WebView webView) {
-            super(value);
-            this.webView = webView;
+        @Override
+        public StackPane get() {
+            return pane;
         }
     }
 
@@ -34,9 +35,9 @@ public class SvgComp extends ReplacementComp<AspectComp.Structure<SvgComp.Struct
     private final ObservableValue<String> svgContent;
 
     public SvgComp(ObservableValue<Number> width, ObservableValue<Number> height, ObservableValue<String> svgContent) {
-        this.width = PlatformUtil.wrap(width);
-        this.height = PlatformUtil.wrap(height);
-        this.svgContent = PlatformUtil.wrap(svgContent);
+        this.width = PlatformThread.sync(width);
+        this.height = PlatformThread.sync(height);
+        this.svgContent = PlatformThread.sync(svgContent);
     }
 
     private String getHtml(String content) {

@@ -2,17 +2,16 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
-import io.xpipe.fxcomps.util.PlatformUtil;
+import io.xpipe.fxcomps.util.PlatformThread;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import lombok.EqualsAndHashCode;
+import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
-import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +36,14 @@ public final class SectionComp extends Comp<CompStructure<GridPane>> {
     }
 
     public SectionComp(ObservableValue<String> name, List<Entry> entries) {
-        this.name = PlatformUtil.wrap(name);
+        this.name = PlatformThread.sync(name);
         this.entries = entries;
     }
 
     @Override
     public CompStructure<GridPane> createBase() {
         GridPane grid = new GridPane();
-        var struc = Structure.builder().value(grid);
+        var struc = Structure.builder().grid(grid);
 
         if (name != null) {
             var t = new Label();
@@ -68,28 +67,34 @@ public final class SectionComp extends Comp<CompStructure<GridPane>> {
         }
 
         grid.getStyleClass().add("section-comp");
-        return new CompStructure<>(grid);
+        return struc.build();
     }
 
     @Value
-    @SuperBuilder
-    @EqualsAndHashCode(callSuper = true)
-    public static class Structure extends CompStructure<GridPane> {
+    @Builder
+    public static class Structure implements CompStructure<GridPane> {
+        GridPane grid;
+
         Label sectionName;
         @Singular
         List<Label> entryNames;
         @Singular
         List<Region> entryValues;
+
+        @Override
+        public GridPane get() {
+            return grid;
+        }
     }
 
-    public static record Entry(ObservableValue<String> name, Comp<?> comp) {
+    public record Entry(ObservableValue<String> name, Comp<?> comp) {
 
         public Entry(String name, Comp<?> comp) {
             this(new SimpleObjectProperty<>(name), comp);
         }
 
         public Entry(ObservableValue<String> name, Comp<?> comp) {
-            this.name = PlatformUtil.wrap(name);
+            this.name = PlatformThread.sync(name);
             this.comp = comp;
         }
     }

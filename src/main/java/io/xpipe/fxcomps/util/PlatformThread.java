@@ -14,9 +14,10 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PlatformUtil {
+@SuppressWarnings("unchecked")
+public class PlatformThread {
 
-    public static Observable wrap(Observable o) {
+    public static Observable sync(Observable o) {
         return new Observable() {
 
             private final Map<InvalidationListener, InvalidationListener> invListenerMap = new ConcurrentHashMap<>();
@@ -24,7 +25,7 @@ public class PlatformUtil {
             @Override
             public void addListener(InvalidationListener listener) {
                 InvalidationListener l = o -> {
-                    PlatformUtil.runLaterIfNeeded(() -> listener.invalidated(o));
+                    PlatformThread.runLaterIfNeeded(() -> listener.invalidated(o));
                 };
 
                 invListenerMap.put(listener, l);
@@ -38,16 +39,16 @@ public class PlatformUtil {
         };
     }
 
-    public static <T> ObservableValue<T> wrap(ObservableValue<T> ov) {
-        return new ObservableValue<T>() {
+    public static <T> ObservableValue<T> sync(ObservableValue<T> ov) {
+        return new ObservableValue<>() {
 
             private final Map<ChangeListener<? super T>, ChangeListener<? super T>> changeListenerMap = new ConcurrentHashMap<>();
             private final Map<InvalidationListener, InvalidationListener> invListenerMap = new ConcurrentHashMap<>();
 
             @Override
             public void addListener(ChangeListener<? super T> listener) {
-                ChangeListener<? super T> l = (c,o,n) -> {
-                    PlatformUtil.runLaterIfNeeded(() -> listener.changed(c,o,n));
+                ChangeListener<? super T> l = (c, o, n) -> {
+                    PlatformThread.runLaterIfNeeded(() -> listener.changed(c, o, n));
                 };
 
                 changeListenerMap.put(listener, l);
@@ -67,7 +68,7 @@ public class PlatformUtil {
             @Override
             public void addListener(InvalidationListener listener) {
                 InvalidationListener l = o -> {
-                    PlatformUtil.runLaterIfNeeded(() -> listener.invalidated(o));
+                    PlatformThread.runLaterIfNeeded(() -> listener.invalidated(o));
                 };
 
                 invListenerMap.put(listener, l);
@@ -81,8 +82,8 @@ public class PlatformUtil {
         };
     }
 
-    public static <T> ObservableList<T> wrap(ObservableList<T> ol) {
-        return new ObservableList<T>() {
+    public static <T> ObservableList<T> sync(ObservableList<T> ol) {
+        return new ObservableList<>() {
 
             private final Map<ListChangeListener<? super T>, ListChangeListener<? super T>> listChangeListenerMap = new ConcurrentHashMap<>();
             private final Map<InvalidationListener, InvalidationListener> invListenerMap = new ConcurrentHashMap<>();
@@ -90,7 +91,7 @@ public class PlatformUtil {
             @Override
             public void addListener(ListChangeListener<? super T> listener) {
                 ListChangeListener<? super T> l = (lc) -> {
-                    PlatformUtil.runLaterIfNeeded(() -> listener.onChanged(lc));
+                    PlatformThread.runLaterIfNeeded(() -> listener.onChanged(lc));
                 };
 
                 listChangeListenerMap.put(listener, l);
@@ -250,7 +251,7 @@ public class PlatformUtil {
             @Override
             public void addListener(InvalidationListener listener) {
                 InvalidationListener l = o -> {
-                    PlatformUtil.runLaterIfNeeded(() -> listener.invalidated(o));
+                    PlatformThread.runLaterIfNeeded(() -> listener.invalidated(o));
                 };
 
                 invListenerMap.put(listener, l);
@@ -265,7 +266,7 @@ public class PlatformUtil {
     }
 
     public static <T> void connect(Property<T> outer, Property<T> platform) {
-        final var binding = new PlatformGenericBidirectionalBinding<T>(outer, platform);
+        final var binding = new PlatformGenericBidirectionalBinding<>(outer, platform);
         platform.setValue(outer.getValue());
         platform.getValue();
         outer.addListener(binding);
@@ -350,7 +351,7 @@ public class PlatformUtil {
                     try {
                         updating = true;
                         if (outerProperty == sourceProperty) {
-                            PlatformUtil.runLaterIfNeeded(() -> {
+                            PlatformThread.runLaterIfNeeded(() -> {
                                 T newValue = outerProperty.getValue();
                                 platformProperty.setValue(newValue);
                                 platformProperty.getValue();
@@ -368,7 +369,7 @@ public class PlatformUtil {
                                 outerProperty.setValue(oldValue);
                                 outerProperty.getValue();
                             } else {
-                                PlatformUtil.runLaterIfNeeded(() -> {
+                                PlatformThread.runLaterIfNeeded(() -> {
                                     platformProperty.setValue(oldValue);
                                     platformProperty.getValue();
                                 });

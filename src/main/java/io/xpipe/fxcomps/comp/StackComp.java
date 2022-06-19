@@ -2,6 +2,7 @@ package io.xpipe.fxcomps.comp;
 
 import io.xpipe.fxcomps.Comp;
 import io.xpipe.fxcomps.CompStructure;
+import io.xpipe.fxcomps.SimpleCompStructure;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 
@@ -22,6 +23,6 @@ public class StackComp extends Comp<CompStructure<StackPane>> {
             pane.getChildren().add(c.createRegion());
         }
         pane.setAlignment(Pos.CENTER);
-        return new CompStructure<>(pane);
+        return new SimpleCompStructure<>(pane);
     }
 }
