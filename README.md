@@ -1,6 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.xpipe/fxcomps/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.xpipe/fxcomps)
 [![javadoc](https://javadoc.io/badge2/io.xpipe/fxcomps/javadoc.svg)](https://javadoc.io/doc/io.xpipe/fxcomps)
-[![Build Status](https://travis-ci.org/xpipe-io/fxcomps.svg?branch=master)](https://travis-ci.org/io.xpipe/fxcomps)
+[![Build Status](https://github.com/xpipe-io/fxcomps/actions/workflows/publish.yml/badge.svg)](https://github.com/xpipe-io/fxcomps/actions/workflows/publish.yml)
 
 # FxComps (WIP)
 
