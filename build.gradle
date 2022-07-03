@@ -4,11 +4,10 @@ plugins {
     id 'signing'
 }
 
-if (project == rootProject) {
-    plugins {
-        id "io.codearte.nexus-staging" version "0.30.0"
-    }
+if(project == rootProject) {
+    apply plugin: "io.codearte.nexus-staging"
 }
+
 
 version '0.2.1'
 group 'io.xpipe'
